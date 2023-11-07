@@ -9,6 +9,7 @@ import javax.validation.constraints.*;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "users")
@@ -21,22 +22,20 @@ public class User implements UserDetails {
     private long id;
 
     @Column(name = "username")
-    @NotEmpty(message = "Name must not be empty")
     @Size(min = 4, max = 25, message = "Username must be 4 to 25 characters long")
     @Pattern(regexp = "^[A-z]*$", message = "Must contain only latin letters")
     private String username;
 
     @Column(name = "password")
-    @NotEmpty(message = "Password must not be empty")
     @Size(min = 4, max = 65, message = "Password must be 4 to 65 characters long")
     private String password;
 
     @Column(name = "email")
-    @Email(message = "Must be valid email")
+    @Pattern(regexp = "^\\S+@\\S+$",message = "Must be valid email")
     private String email;
 
     @Column(name = "age")
-    @Min(value = 0, message = "Age must be greater than zero")
+    @Min(value = 1, message = "Age must be greater than zero")
     @Max(value = 130, message = "Age cannot exceed 130 years")
     private int age;
 
@@ -81,6 +80,10 @@ public class User implements UserDetails {
 
     public Set<Role> getRoles() {
         return roles;
+    }
+
+    public String getRoleNames() {
+        return roles.stream().map(Role::getAuthority).collect(Collectors.joining(", "));
     }
 
     public void setRoles(Set<Role> roles) {

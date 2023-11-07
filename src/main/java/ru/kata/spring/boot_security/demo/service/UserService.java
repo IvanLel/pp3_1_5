@@ -60,8 +60,10 @@ public class UserService implements UserDetailsService {
     public void updateUser(User user, long id) {
         User userFromDB = getById(id);
 
+        if (!userFromDB.getPassword().equals(user.getPassword())) {
+            userFromDB.setPassword(passEncoder().encode(user.getPassword()));
+        }
         userFromDB.setUsername(user.getUsername());
-        userFromDB.setPassword(passEncoder().encode(user.getPassword()));
         userFromDB.setEmail(user.getEmail());
         userFromDB.setAge(user.getAge());
         userFromDB.setRoles(user.getRoles());

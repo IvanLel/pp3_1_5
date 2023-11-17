@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:display="http://www.w3.org/1999/xhtml">
+<!---->
 <head>
     <meta charset="UTF-8">
     <title>Admin panel</title>
@@ -16,11 +17,11 @@
 <ul class="navbar navbar-expand-xl navbar-dark bg-dark" style="list-style: none">
     <li style="justify-content: left; color: white" class="nav-item">
         <div class="title" th:text="${'Username: ' + loggedInUser.getUsername()}">Username</div>
+
     </li>
     <li style="justify-content: left; color: white" class="nav-item">
         <div class="title" style="position: relative; left:30px"
-             th:text="${'With roles: ' + loggedInUser.getRoleNames()}"> With roles:
-        </div>
+             th:text="${'With roles: ' + loggedInUser.getRoleNames()}">With roles:</div>
     </li>
     <li class="nav-item ml-auto">
         <a class="nav-link" href='/logout'>Logout</a>
@@ -40,146 +41,170 @@
 
     <!--      Page body      -->
     <div class="col-lg-10 tab-content" style="background-color: whitesmoke">
-        <div class="tab-content" id="v-pills-tabContent">
+        <div class="tab-content">
             <h1>Admin panel</h1>
-            <ul class="nav nav-tabs">
-                <li class="nav-item">
-                    <a class="nav-link active" href="/admin">Users list</a>
-                </li>
 
+            <ul class="nav nav-tabs" id="horizontalNavLinks">
+                <li class="nav-item">
+                    <button class="nav-link active" id="usersTableTab" onclick="showUsersTable()">Users list</button>
+                </li>
                 <!--    Add user button     -->
                 <li class="nav-item">
-                    <a class="nav-link" href="/admin/addUserTab">Add user</a>
+                    <button class="nav-link" id="addUserTab" onclick="showAddUserForm()">Add user</button>
                 </li>
             </ul>
 
             <!--        Users table     -->
-            <table class="table table-striped table hover">
-                <thead>
-                <tr>
-                    <th scope="col">ID</th>
-                    <th scope="col">Username</th>
-                    <th scope="col">Email</th>
-                    <th scope="col">Age</th>
-                    <th scope="col">Roles</th>
-                    <th scope="col">Edit</th>
-                    <th scope="col">Delete</th>
+            <div id="usersTable">
+                <table class="table table-striped table hover">
+                    <thead>
+                    <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">Username</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Age</th>
+                        <th scope="col">Roles</th>
+                        <th scope="col">Edit</th>
+                        <th scope="col">Delete</th>
 
-                </tr>
-                </thead>
+                    </tr>
+                    </thead>
 
-                <tbody>
-                <tr th:each="user : ${users}">
-                    <td th:text="${user.getId()}"/>
-                    <td th:text="${user.getUsername()}"/>
-                    <td th:text="${user.getEmail()}"/>
-                    <td th:text="${user.getAge()}"/>
-                    <td th:text="${user.getRoles()}"/>
-                    <td><a class="btn btn-info editingButton" data-target="#editUserModal"
-                           id="editUserButton" data-toggle="modal"
-                           th:href="@{admin/findUser (id = ${user.getId()})}">Edit</a></td>
-                    <td><a class="btn btn-outline-danger deleteButton" data-target="#deleteUserModal"
-                           id="deleteUserButton" data-toggle="modal"
-                           th:href="@{admin/findUser (id = ${user.getId()})}">Delete</a></td>
-                </tr>
-                </tbody>
-            </table>
+                    <tbody id="tableData">
+                    </tbody>
+                </table>
+            </div>
+
+                <!--     ADD USER FORM     -->
+            <div class="container" id="addUserForm" style="align-items: center; text-align: center; width: 70%;
+                                         margin-left: 15%; margin-top: 20px; display:none">
+
+                <div class="form-group" style="align-items: center; text-align: center; width: 50%;
+                                               margin-left: 25%; margin-top: 20px">
+                    <label for="newUserId" class="col-form-label">ID</label>
+                    <input type="text" class="form-control" id="newUserId" name="newUserId" readonly>
+                </div>
+
+                <div class="form-group" style="align-items: center; text-align: center; width: 50%;
+                                             margin-left: 25%; margin-top: 20px">
+                    <label for="newUserUsername" class="col-form-label">Username</label>
+                    <input type="text" class="form-control" id="newUserUsername" name="newUserUsername" placeholder="Username">
+                    <span class="error-massage" id="usernameAddNewFieldError" style="color: red"></span>
+                </div>
+
+                <div class="form-group" style="align-items: center; text-align: center; width: 50%;
+                                             margin-left: 25%; margin-top: 20px">
+                    <label for="newUserPassword" class="col-form-label">Password</label>
+                    <input type="text" class="form-control" id="newUserPassword" name="newUserPassword" placeholder="Password">
+                    <span class="error-massage" id="passwordAddNewFieldError" style="color: red"></span>
+                </div>
+
+                <div class="form-group" style="align-items: center; text-align: center; width: 50%;
+                                             margin-left: 25%; margin-top: 20px">
+                    <label for="newUserEmail" class="col-form-label">Email</label>
+                    <input type="text" class="form-control" id="newUserEmail" name="newUserEmail" placeholder="email">
+                    <span class="error-massage" id="emailAddNewFieldError" style="color: red"></span>
+
+                </div>
+
+                <div class="form-group" style="align-items: center; text-align: center; width: 50%;
+                                                 margin-left: 25%; margin-top: 20px">
+                    <label for="newUserAge" class="col-form-label">Age</label>
+                    <input type="number" class="form-control" id="newUserAge" name="newUserAge" placeholder="age">
+                    <span class="error-massage" id="ageAddNewFieldError" style="color: red"></span>
+                </div>
+
+                <div class="custom-control custom-checkbox align-content-lg-start">
+                    <label>Roles:</label>
+                    <div id="newUserCheckboxesContainer">
+                        <!--Checkboxes insertion in JS script-->
+                    </div>
+                    <span class="error-massage" id="rolesAddNewFieldError" style="color: red"></span>
+                </div>
+                <button type="submit" id="addUserConfirmButton" class="btn btn-success">Add user</button>
+            </div>
         </div>
     </div>
 </div>
 
+
+
 <!--              EDIT USER MODAL WINDOW         -->
 <div class="modal fade" id="editUserModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
      aria-hidden="true">
-    <form method="POST" th:action="@{/admin/updateUser}" th:object="${user}">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="editModalLabel">Edit user</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editModalLabel">Edit user</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+
+                <div class="form-group" style="align-items: center; text-align: center; width: 50%;
+                                     margin-left: 25%; margin-top: 20px">
+                    <label for="editId" class="col-form-label">ID</label>
+                    <input type="text" class="form-control" id="editId" name="username"
+                           readonly>
                 </div>
 
-                <div class="modal-body">
-                    <input type="hidden" id="hasErrors" th:value="${#fields.hasErrors('*')}"/>
-
-                    <div class="form-group" style="align-items: center; text-align: center; width: 50%;
-                                         margin-left: 25%; margin-top: 20px">
-                        <label for="editId" class="col-form-label">ID</label>
-                        <input type="text" class="form-control" id="editId" name="username"
-                               th:field="*{id}" readonly>
-                    </div>
-
-                    <div class="form-group" style="align-items: center; text-align: center; width: 50%;
-                                         margin-left: 25%; margin-top: 20px">
-                        <label for="editUsername" class="col-form-label">Username</label>
-                        <input type="text" class="form-control" id="editUsername" name="username"
-                               th:field="*{username}">
-                        <div style="color: red" th:if="${#fields.hasErrors('username')}" th:errors="*{username}">
-                            Username error
-                        </div>
-                    </div>
-
-
-                    <div class="form-group" style="align-items: center; text-align: center; width: 50%;
-                                         margin-left: 25%; margin-top: 20px">
-                        <label for="editPassword" class="col-form-label">Password</label>
-                        <input type="text" class="form-control" id="editPassword" name="password"
-                               th:field="*{password}">
-                        <div style="color: red" th:if="${#fields.hasErrors('password')}" th:errors="*{password}">
-                            Password error
-                        </div>
-                    </div>
-
-                    <div class="form-group" style="align-items: center; text-align: center; width: 50%;
-                                         margin-left: 25%; margin-top: 20px">
-                        <label for="editEmail" class="col-form-label">Email</label>
-                        <input type="text" class="form-control" id="editEmail" name="email"
-                               th:field="*{email}">
-                        <div style="color: red" th:if="${#fields.hasErrors('email')}" th:errors="*{email}">Email error
-                        </div>
-                    </div>
-
-                    <div class="form-group" style="align-items: center; text-align: center; width: 50%;
-                                         margin-left: 25%; margin-top: 20px">
-                        <label for="editAge" class="col-form-label">Age</label>
-                        <input type="number" class="form-control" id="editAge" name="age"
-                               th:field="*{age}">
-                        <div style="color: red" th:if="${#fields.hasErrors('age')}" th:errors="*{age}">Age error</div>
-                    </div>
-
-                    <div class="custom-control custom-checkbox" style="align-items: center; text-align: center">
-                        <label for="editRoles">Roles:</label>
-                        <input type="checkbox" name="roles" id="editRoles"
-                               th:each="role : ${allRoles}"
-                               th:value="${role.id}"
-                               th:field="*{roles}"
-                               th:text="${role.authority}"/>
-
-                        <div style="color: red" th:if="${#fields.hasErrors('roles')}" th:errors="*{roles}">Roles error
-                        </div>
+                <div class="form-group" style="align-items: center; text-align: center; width: 50%;
+                                     margin-left: 25%; margin-top: 20px">
+                    <label for="editUsername" class="col-form-label">Username</label>
+                    <input type="text" class="form-control" id="editUsername" name="username">
+                    <span class="error-massage" id="usernameEditFieldError" style="color: red"></span>
                     </div>
                 </div>
 
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary">Save</button>
+
+                <div class="form-group" style="align-items: center; text-align: center; width: 50%;
+                                     margin-left: 25%; margin-top: 20px">
+                    <label for="editPassword" class="col-form-label">Password</label>
+                    <input type="text" class="form-control" id="editPassword" name="password">
+                    <span class="error-massage" id="passwordEditFieldError" style="color: red"></span>
                 </div>
+
+                <div class="form-group" style="align-items: center; text-align: center; width: 50%;
+                                     margin-left: 25%; margin-top: 20px">
+                    <label for="editEmail" class="col-form-label">Email</label>
+                    <input type="text" class="form-control" id="editEmail" name="email">
+                    <span class="error-massage" id="emailEditFieldError" style="color: red"></span>
+                </div>
+
+                <div class="form-group" style="align-items: center; text-align: center; width: 50%;
+                                     margin-left: 25%; margin-top: 20px">
+                    <label for="editAge" class="col-form-label">Age</label>
+                    <input type="number" class="form-control" id="editAge" name="age">
+                    <span class="error-massage" id="ageEditFieldError" style="color: red"></span>
+                </div>
+
+                <div class="custom-control custom-checkbox" style="align-items: center; text-align: center">
+                    <label>Roles:</label>
+                    <div id="editRolesCheckboxesContainer">
+                    <!--Checkboxes insertion in JS script-->
+                    </div>
+                    <span class="error-massage" id="rolesEditFieldError" style="color: red"></span>
+                </div>
+
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary" id="editConfirmButton">Save</button>
             </div>
         </div>
-    </form>
+    </div>
 </div>
 
 
 <!--              DELETE USER MODAL WINDOW          -->
 <div class="modal fade" id="deleteUserModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
      aria-hidden="true">
-    <form method="POST" th:action="@{/admin/delete}" th:object="${user}">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="deleteModalLabel">Edit user</h5>
+                    <h5 class="modal-title" id="deleteModalLabel">Delete user</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -191,56 +216,53 @@
                                          margin-left: 25%; margin-top: 20px">
                         <label for="editId" class="col-form-label">Username</label>
                         <input type="text" class="form-control" id="deleteId" name="username"
-                               th:field="*{id}" readonly>
+                                readonly>
                     </div>
 
                     <div class="form-group" style="align-items: center; text-align: center; width: 50%;
                                          margin-left: 25%; margin-top: 20px">
                         <label for="deleteUsername" class="col-form-label">Username</label>
                         <input type="text" class="form-control" id="deleteUsername" name="username"
-                               th:field="*{username}" readonly="readonly">
+                               readonly="readonly">
                     </div>
 
-<!--                    <div class="form-group" style="align-items: center; text-align: center; width: 50%;-->
-<!--                                         margin-left: 25%; margin-top: 20px">-->
-<!--                        <label for="deletePassword" class="col-form-label">Password</label>-->
-<!--                        <input type="text" class="form-control" id="deletePassword" name="password"-->
-<!--                               th:field="*{password}" readonly>-->
-<!--                    </div>-->
+                    <!--                    <div class="form-group" style="align-items: center; text-align: center; width: 50%;-->
+                    <!--                                         margin-left: 25%; margin-top: 20px">-->
+                    <!--                        <label for="deletePassword" class="col-form-label">Password</label>-->
+                    <!--                        <input type="text" class="form-control" id="deletePassword" name="password"-->
+                    <!--                               th:field="*{password}" readonly>-->
+                    <!--                    </div>-->
 
                     <div class="form-group" style="align-items: center; text-align: center; width: 50%;
                                          margin-left: 25%; margin-top: 20px">
                         <label for="deleteEmail" class="col-form-label">Email</label>
                         <input type="text" class="form-control" id="deleteEmail" name="email"
-                               th:field="*{email}" readonly>
+                                readonly>
                     </div>
 
                     <div class="form-group" style="align-items: center; text-align: center; width: 50%;
                                          margin-left: 25%; margin-top: 20px">
                         <label for="deleteAge" class="col-form-label">Age</label>
                         <input type="number" class="form-control" id="deleteAge" name="age"
-                               th:field="*{age}" readonly>
+                                readonly>
                     </div>
 
+
                     <div class="custom-control custom-checkbox" style="align-items: center; text-align: center">
-                        <label for="deleteRoles">Roles:</label>
-                        <input type="checkbox" name="roles" id="deleteRoles"
-                               th:each="role : ${allRoles}"
-                               th:value="${role.id}"
-                               th:field="*{roles}"
-                               th:text="${role.authority}" readonly/>
+                        <label>Roles:</label>
+                        <div id="deleteRolesCheckboxesContainer">
+                            <!--Checkboxes insertion in JS script-->
+                        </div>
                     </div>
-                </div>
 
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary">Delete</button>
+                    <button type="submit" id="deleteConfirmButton" class="btn btn-primary">Delete</button>
                 </div>
             </div>
         </div>
-    </form>
+    </div>
 </div>
-
 
 <script src="https://code.jquery.com/jquery-3.3.1.min.js"
         integrity="sha384-tsQFqpEReu7ZLhBV2VZlAu7zcOV+rXbYlF2cqB8txI/8aZajjp4Bqd+V6D5IgvKT"
@@ -252,9 +274,8 @@
         integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
         crossorigin="anonymous"></script>
 
-<script type="text/javascript" src="../static/editModal.js" th:src="@{/editModal.js}"></script>
-
-<script type="text/javascript" src="../static/deleteModal.js" th:src="@{/deleteModal.js}"></script>
+<script type ="text/javascript" th:src="@{/main.js}"></script>
+<script type ="text/javascript"  th:src="@{/tabManagment.js}"></script>
 
 </body>
 </html>

@@ -2,6 +2,7 @@ package ru.kata.spring.boot_security.demo.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.util.StringUtils;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,7 +20,6 @@ import java.util.stream.Collectors;
 
 @Service
 public class UserService implements UserDetailsService {
-
     private UserRepository userRepository;
 
     @Autowired
@@ -50,19 +50,23 @@ public class UserService implements UserDetailsService {
     }
 
     public User getById(long id) {
-        return userRepository.getById(id);
+        return userRepository.findById(id).orElseThrow(
+                () -> new UsernameNotFoundException("User with id " + id + ", not found"));
     }
 
-    public void deleteById(Long id) {
+    public User deleteById(Long id) {
+        User user = getById(id);
         userRepository.deleteById(id);
+        return user;
     }
 
     public void updateUser(User user, long id) {
         User userFromDB = getById(id);
 
-        if (!userFromDB.getPassword().equals(user.getPassword())) {
+        if (StringUtils.hasLength(user.getPassword())) {
             userFromDB.setPassword(passEncoder().encode(user.getPassword()));
         }
+
         userFromDB.setUsername(user.getUsername());
         userFromDB.setEmail(user.getEmail());
         userFromDB.setAge(user.getAge());

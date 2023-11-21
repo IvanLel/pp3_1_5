@@ -1,6 +1,8 @@
 package ru.kata.spring.boot_security.demo.controller;
 
+
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import ru.kata.spring.boot_security.demo.model.Role;
@@ -32,7 +34,7 @@ public class RESTControllerAdmin {
     }
 
     @GetMapping("/users/roles")
-    public List<Role> getAllRoles() {return roleService.getAllRoles(); }
+    public List<Role> getAllRoles() { return roleService.getAllRoles(); }
 
     @GetMapping("/users/{id}")
     public User getUser(@PathVariable("id") long id) {
@@ -41,6 +43,8 @@ public class RESTControllerAdmin {
 
     @PostMapping("/users")
     public ResponseEntity<?> addNewUser(@Valid @RequestBody User user, BindingResult bindingResult) {
+        validateFieldsUniqueness(user, bindingResult);
+
         if (bindingResult.hasErrors()) {
             return ResponseEntity.badRequest().body(bindingResult.getAllErrors());
         }
@@ -54,9 +58,12 @@ public class RESTControllerAdmin {
     public ResponseEntity<?> updateUser(@PathVariable("id") long id,
                                         @Valid @RequestBody User user,
                                         BindingResult bindingResult) {
+        validateFieldsUniqueness(user, bindingResult);
+
         if (bindingResult.hasErrors()) {
             return ResponseEntity.badRequest().body(bindingResult.getAllErrors());
         }
+
         user.setRoles(manageRoles(user.getRoles()));
         userService.updateUser(user, id);
 
@@ -72,5 +79,14 @@ public class RESTControllerAdmin {
         return roles.stream()
                 .map(role -> roleService.getById(role.getId()))
                 .collect(Collectors.toSet());
+    }
+
+    private void validateFieldsUniqueness(User user, BindingResult bindingResult) {
+        if (userService.checkEmailExistence(user.getEmail())) {
+            bindingResult.rejectValue("email", "email.notUnique", "Email address already taken");
+        }
+        if (userService.checkUsernameExistence(user.getUsername())) {
+            bindingResult.rejectValue("username", "username.notUnique", "Username already taken");
+        }
     }
 }

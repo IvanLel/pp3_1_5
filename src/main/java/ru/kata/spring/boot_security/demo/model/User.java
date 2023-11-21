@@ -8,6 +8,7 @@ import javax.persistence.*;
 import javax.validation.constraints.*;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -21,7 +22,7 @@ public class User implements UserDetails {
     @Column(name = "id")
     private long id;
 
-    @Column(name = "username")
+    @Column(name = "username", unique = true)
     @Size(min = 4, max = 25, message = "Username must be 4 to 25 characters long")
     @Pattern(regexp = "^[A-z]*$", message = "Must contain only latin letters")
     private String username;
@@ -30,7 +31,7 @@ public class User implements UserDetails {
     @Size(min = 4, max = 65, message = "Password must be 4 to 65 characters long")
     private String password;
 
-    @Column(name = "email")
+    @Column(name = "email", unique = true)
     @Pattern(regexp = "^\\S+@\\S+$",message = "Must be valid email")
     private String email;
 
@@ -134,5 +135,18 @@ public class User implements UserDetails {
                 ", email='" + email + '\'' +
                 ", age=" + age +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof User)) return false;
+        User user = (User) o;
+        return Objects.equals(username, user.username) && Objects.equals(email, user.email);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(username, email);
     }
 }

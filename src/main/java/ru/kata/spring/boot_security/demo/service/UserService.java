@@ -1,7 +1,7 @@
 package ru.kata.spring.boot_security.demo.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -12,28 +12,33 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;
-import ru.kata.spring.boot_security.demo.repository.UserRepository;
+import ru.kata.spring.boot_security.demo.repository.UserDao;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class UserService implements UserDetailsService {
-    private UserRepository userRepository;
+
+    private UserDao userDao;
 
     @Autowired
-    public void setUserRepository(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public void setUserRepository(UserDao userDao) {
+        this.userDao = userDao;
     }
 
+
+    @Transactional(readOnly = true)
     public User findByUsername(String username) {
-        return userRepository.findByUsername(username);
+        return userDao.findByUsername(username);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByUsername(username);
+        User user = userDao.findByUsername(username);
         if (user == null) {
             throw new UsernameNotFoundException(String.format("User - %s  not found", username));
         }
@@ -45,18 +50,19 @@ public class UserService implements UserDetailsService {
         return roles.stream().map(role -> new SimpleGrantedAuthority(role.getAuthority())).collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public List<User> getAllUsers() {
-        return userRepository.findAll();
+        return userDao.findAll();
     }
 
+    @Transactional(readOnly = true)
     public User getById(long id) {
-        return userRepository.findById(id).orElseThrow(
-                () -> new UsernameNotFoundException("User with id " + id + ", not found"));
+        return userDao.findById(id);
     }
 
-    public User deleteById(Long id) {
+    public User deleteById(long id) {
         User user = getById(id);
-        userRepository.deleteById(id);
+        userDao.deleteById(id);
         return user;
     }
 
@@ -72,12 +78,20 @@ public class UserService implements UserDetailsService {
         userFromDB.setAge(user.getAge());
         userFromDB.setRoles(user.getRoles());
 
-        userRepository.flush();
+        userDao.save(userFromDB);
     }
 
     public void addNewUser(User user) {
         user.setPassword(passEncoder().encode(user.getPassword()));
-        userRepository.save(user);
+        userDao.save(user);
+    }
+
+    public boolean checkUsernameExistence(String username) {
+        return userDao.checkUsernameExistence(username);
+    }
+
+    public boolean checkEmailExistence(String email) {
+        return userDao.checkEmailExistence(email);
     }
 
     private BCryptPasswordEncoder passEncoder() {

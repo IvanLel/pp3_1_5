@@ -27,5 +27,4 @@ public class ViewController {
         model.addAttribute("user", userService.findByUsername(principal.getName()));
         return "userPage";
     }
-
 }
